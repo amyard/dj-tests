@@ -8,9 +8,7 @@ from django.core.validators import validate_email
 User = get_user_model()
 
 
-class CustomAuthenticationForm(forms.Form):
-    email = forms.CharField(label='Email',
-                            widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter an email'}))
+class CustomAuthenticationForm(AuthenticationForm):
     password = forms.CharField(label='Password', widget=forms.PasswordInput())
 
     class Meta:
@@ -32,7 +30,7 @@ class CustomAuthenticationForm(forms.Form):
         return email
 
     def clean_password(self):
-        email = self.cleaned_data.get('email')
+        email = self.cleaned_data.get('username')
         password = self.cleaned_data['password']
         user = User.objects.get(email=email)
         if not user:
@@ -42,7 +40,8 @@ class CustomAuthenticationForm(forms.Form):
         return password
 
 
-class CustomUserCreationForm(UserCreationForm):
+class CustomUserCreationForm(forms.ModelForm):
+# class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Enter your username'}))
     email = forms.CharField(label='Email', widget=forms.EmailInput(attrs={'class':'form-control', 'placeholder':'Enter an email'}))
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class':'form-control', 'placeholder':'Enter password'}))
