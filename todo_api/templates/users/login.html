@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Log In - {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+
+<form action="{% url 'users:login' %}" class="login-form" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Signup">
+    <a href="{% url 'tasks:base_view' %}">Cancel</a>
+</form>
+
+{% endblock %}

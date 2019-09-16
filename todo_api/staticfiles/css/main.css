@@ -1,0 +1,27 @@
+.navigation {
+    width:100%;
+}
+
+.btn {
+    padding:10px 20px;
+    background-color: grey;
+    color: white;
+    margin:10px;
+
+}
+
+.btn:hover {
+    color: black;
+    background-color: white;
+    box-shadow: 0px 0px 2px black;
+}
+
+.login-form {
+    border: 1px solid black;
+    margin-top: 20px;
+}
+
+.lang-form {
+    float: right;
+    margin: 10px;
+}

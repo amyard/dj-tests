@@ -1,0 +1,58 @@
+{% load static i18n %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <title>
+        {% block title %} ToDo APIs {% endblock %}
+    </title>
+</head>
+<body>
+
+
+<div class="navigation">
+    <a href="{% url 'users:registration' %}" class="btn">Reg</a>
+    <a href="{% url 'users:login' %}" class="btn">Log In</a>
+    <a href="{% url 'users:logout' %}" class="btn">Log Out</a>
+    --- <span>{{ user }}</span>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <b>{{ message }}</b>
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+
+
+{% block content %}
+    {{ test }}
+{% endblock %}
+
+
+
+
+
+
+{% block js %}
+<script>
+$(function(){
+    $(".alert").fadeTo(4000, 500).slideUp(500, function(){
+        $(".alert").slideUp(500);
+    });
+});
+</script>
+{% endblock %}
+
+</body>
+</html>
