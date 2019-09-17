@@ -30,3 +30,5 @@ class CustomRegistrationView(CreateView):
     def form_valid(self, form):
         form.instance.pass_test = form.cleaned_data['password1']
         return super(CustomRegistrationView, self).form_valid(form)
+
+
