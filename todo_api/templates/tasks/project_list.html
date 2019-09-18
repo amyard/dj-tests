@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    Project ListView - {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+
+{% for item in object_list %}
+    {{ item }} --- <a href="{% url 'tasks:project_update' item.slug %}" class="btn">UPDATE</a> --- <a href="{% url 'tasks:project_delete' item.slug %}" class="btn">Delete</a><br>
+{% empty %}
+    <h2>Sorry, no projects yet.</h2>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    Project Delete - {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+
+<form action="" class="login-form" method="POST">
+    {% csrf_token %}
+    <p>Are you sure you want to delete "{{ object }}"?</p>
+    <input type="submit" value="Confirm">
+</form>
+
+{% endblock %}

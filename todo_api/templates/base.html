@@ -54,6 +54,11 @@
 {% block content %}
 
     <h2>{% trans "translate this" %}</h2>
+    <h3>Project</h3>
+    <ul>
+        <li><a href="{% url 'tasks:project_list' %}">List View</a></li>
+        <li><a href="{% url 'tasks:project_create' %}">Create</a></li>
+    </ul>
 
 {% endblock %}
 
