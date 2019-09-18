@@ -3,6 +3,6 @@ from .models import Project
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('title',)
+    list_display = ('title','user',)
     list_filter = ['title', 'user']
     prepopulated_fields = {'slug':('title',)}

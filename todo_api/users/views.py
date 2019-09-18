@@ -25,7 +25,7 @@ class CustomLoginView(SuccessMessageMixin, LoginView):
 class CustomRegistrationView(CreateView):
     template_name = 'users/registration.html'
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy('users:login')
+    success_url = reverse_lazy('tasks:base_view')
 
     def form_valid(self, form):
         form.instance.pass_test = form.cleaned_data['password1']

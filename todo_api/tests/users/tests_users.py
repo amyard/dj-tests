@@ -71,6 +71,10 @@ class UsersTestCase(TestCase):
         response = self.client.get(self.logout)
         self.assertEqual(response.status_code, 302)
 
+    # def test_redirect_if_not_logged_in(self):
+    #     resp = self.client.get(reverse('tasks:base_view'))
+    #     self.assertRedirects(resp, '/users/signin/?next=/')
+
 
 class UserAuthenticationFormTestCase(TestCase):
 
