@@ -122,6 +122,7 @@ class ProjectTestCaseCreateView(TestCase):
         cls.form_data = {'title':'Golang','color':'primary'}
         cls.pr = ProjectFactory(user=cls.user)
         cls.url = reverse('tasks:project_create')
+        cls.redirect_url = reverse('tasks:project_list')
 
     def test_published_pr(self):
         self.client.force_login(self.user)
@@ -131,11 +132,45 @@ class ProjectTestCaseCreateView(TestCase):
     def test_create_pr_second(self):
         self.client.force_login(self.user)
         self.client.post(self.url, self.form_data)
-
-        num_of_blogs = Project.objects.count()
+        num_of_pr = Project.objects.count()
         pr = Project.objects.get(title=self.form_data['title'])
+        self.assertEqual(pr.user, self.user)
+        self.assertEqual(pr.title, 'Golang')
+        self.assertEqual(num_of_pr, 2)
+
+    def test_create_pr_check_redirect_after_success(self):
+        self.client.force_login(self.user)
+        response = self.client.post(self.url, self.form_data)
+        self.assertRedirects(response, self.redirect_url, status_code=302,
+                             target_status_code=200, fetch_redirect_response=True)
 
 
+
+
+class ProjectTestCaseDeleteView(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.user = UserFactory()
+        cls.user2 = UserFactory()
+        cls.pr = ProjectFactory(user=cls.user)
+        cls.pr_slug = cls.pr.slug
+        cls.url = reverse('tasks:project_update', args=[cls.pr_slug])
+        cls.form_data = {'title': 'Golang', 'color': 'primary'}
+
+
+    def test_update_view_for_correct_user(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    # TODO - нужна проверка юзера на корректного
+    def test_update_view_for_wrong_user(self):
+        self.client.force_login(self.user2)
+        response = self.client.get(self.url)
+        print(response)
+        print(self.user2)
+        # self.assertEqual(response.status_code, 404)
 
 
 
