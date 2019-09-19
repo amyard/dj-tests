@@ -154,3 +154,4 @@ STATICFILES_DIRS = (
 
 LOGIN_REDIRECT_URL = 'tasks:base_view'
 LOGOUT_REDIRECT_URL = 'tasks:base_view'
+LOGIN_URL = 'users:login'

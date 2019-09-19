@@ -123,6 +123,14 @@ class ProjectTestCaseCreateView(TestCase):
         cls.pr = ProjectFactory(user=cls.user)
         cls.url = reverse('tasks:project_create')
         cls.redirect_url = reverse('tasks:project_list')
+        cls.redirect_login = '/en/users/login/?next=/en/project-create/'
+
+
+    def test_user_not_logged(self):
+        response = self.client.post(self.url, self.form_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, self.redirect_login, status_code=302,
+                             target_status_code=200, fetch_redirect_response=True)
 
     def test_published_pr(self):
         self.client.force_login(self.user)
@@ -153,6 +161,7 @@ class ProjectTestCaseDeleteView(TestCase):
         cls.client = Client()
         cls.user = UserFactory()
         cls.user2 = UserFactory()
+        cls.user3 = UserFactory(is_superuser=True, is_admin=True, is_staff=True)
         cls.pr = ProjectFactory(user=cls.user)
         cls.pr_slug = cls.pr.slug
         cls.url = reverse('tasks:project_update', args=[cls.pr_slug])
@@ -164,39 +173,74 @@ class ProjectTestCaseDeleteView(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
-    # TODO - нужна проверка юзера на корректного
     def test_update_view_for_wrong_user(self):
         self.client.force_login(self.user2)
         response = self.client.get(self.url)
-        print(response)
-        print(self.user2)
-        # self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
+
+    def test_update_view_user_not_logged(self):
+        response = self.client.post(self.url, self.form_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/en/users/login/?next=/en/project-update/new-title-for-project-2-username_3/', status_code=302,
+                             target_status_code=200, fetch_redirect_response=True)
+
+    def test_update_data_correct_user(self):
+        self.client.force_login(self.user)
+        response = self.client.post(self.url, self.form_data)
+        self.assertRedirects(response, reverse('tasks:project_list'),
+                             status_code=302, target_status_code=200, fetch_redirect_response=True)
+        self.pr.refresh_from_db()
+        self.assertEqual(self.pr.title, 'Golang')
+
+    def test_update_data_superuser(self):
+        self.client.force_login(self.user3)
+        response = self.client.post(self.url, self.form_data)
+        self.assertRedirects(response, reverse('tasks:project_list'),
+                             status_code=302, target_status_code=200, fetch_redirect_response=True)
+        self.pr.refresh_from_db()
+        self.assertEqual(self.pr.title, 'Golang')
 
 
+class ProjectTestCaseDeleteView(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.user = UserFactory()
+        cls.user2 = UserFactory()
+        cls.user3 = UserFactory(is_superuser=True, is_admin=True, is_staff=True)
+        cls.pr = ProjectFactory(user=cls.user)
+        cls.pr_slug = cls.pr.slug
+        cls.url = reverse('tasks:project_delete', args=[cls.pr_slug])
 
-# class BookUpdateTest(TestCase):
-#     def test_update_book(self):
-#         book = Book.objects.create(title='The Catcher in the Rye')
-#
-#         response = self.client.post(
-#             reverse('book-update', kwargs={'pk': book.id}),
-#             {'author': 'J.D. Salinger'})
-#
-#         self.assertEqual(response.status_code, 200)
-#
-#         book.refresh_from_db()
-#         self.assertEqual(book.author, 'J.D. Salinger')
+    def test_delete_view_user_not_logged(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/en/users/login/?next=/en/project-delete/new-title-for-project-2-username_3', status_code=302,
+                             target_status_code=200, fetch_redirect_response=True)
 
+    def test_delete_view_get_function_with_user(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Are you sure you want to delete')
+        assert 'base.html' in [t.name for t in response.templates]
+        assert 'tasks/project_delete.html' in [t.name for t in response.templates]
 
-# class BookUpdateTest(TestCase):
-#     def test_update_book(self):
-#         book = Book.objects.create(title='The Catcher in the Rye')
-#
-#         response = self.client.post(
-#             reverse('book-update', kwargs={'pk': book.id}),
-#             {'title': 'The Catcher in the Rye', 'author': 'J.D. Salinger'})
-#
-#         self.assertEqual(response.status_code, 302)
-#
-#         book.refresh_from_db()
-#         self.assertEqual(book.author, 'J.D. Salinger')
+    def test_delete_project_correct_user(self):
+        self.client.force_login(self.user)
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('tasks:project_list'), status_code=302,target_status_code=200, fetch_redirect_response=True)
+        self.assertEqual(Project.objects.count(), 0)
+
+    def test_delete_view_for_wrong_user(self):
+        self.client.force_login(self.user2)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_data_superuser(self):
+        self.client.force_login(self.user3)
+        response = self.client.post(self.url)
+        self.assertRedirects(response, reverse('tasks:project_list'),
+                             status_code=302, target_status_code=200, fetch_redirect_response=True)
+        self.assertEqual(Project.objects.count(), 0)

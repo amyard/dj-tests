@@ -1,7 +1,9 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+
 
 from .models import Project
 from .forms import ProjectCreateForm, ProjectUpdateForm
@@ -18,7 +20,7 @@ class ProjectListView(ListView):
         return self.model.objects.filter(user=self.request.user)
 
 
-class ProjectCreateView(CreateView):
+class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = 'tasks/project_create.html'
     form_class = ProjectCreateForm
 
@@ -36,8 +38,7 @@ class ProjectCreateView(CreateView):
         return reverse('tasks:project_list')
 
 
-# TODO - UPDATE
-class ProjectUpdateView(UpdateView):
+class ProjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Project
     form_class = ProjectUpdateForm
     template_name = 'tasks/project_create.html'
@@ -52,12 +53,23 @@ class ProjectUpdateView(UpdateView):
         messages.add_message(self.request, messages.INFO, 'Success: Project was updated.')
         return reverse('tasks:project_list')
 
+    def test_func(self):
+        pr = self.get_object()
+        if self.request.user == pr.user or self.request.user.is_superuser:
+            return True
+        return False
 
-# TODO - DELETE
-class ProjectDeleteView(DeleteView):
+
+class ProjectDeleteView(LoginRequiredMixin, UserPassesTestMixin,DeleteView):
     model = Project
     template_name = 'tasks/project_delete.html'
 
     def get_success_url(self):
         messages.add_message(self.request, messages.INFO, 'Success: Project was deleted.')
         return reverse('tasks:project_list')
+
+    def test_func(self):
+        pr = self.get_object()
+        if self.request.user == pr.user or self.request.user.is_superuser:
+            return True
+        return False
