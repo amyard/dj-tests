@@ -49,6 +49,7 @@ class TaskListViewTestCase(TestCase):
 
     def test_get_objects_not_logged_users(self):
         response = self.client.get(self.url)
+
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/en/users/login/?next=/en/task-list/', status_code=302,
                              target_status_code=200, fetch_redirect_response=True)
@@ -56,23 +57,41 @@ class TaskListViewTestCase(TestCase):
     def user_task_for_logged_user(self):
         self.client.force_login(self.user)
         response = self.client.get(self.url)
+        obj = Task.objects.filter(project__user=self.user)
+
         self.assertEqual(response.status_code, 200)
         assert 'base.html' in [t.name for t in response.templates]
         assert 'tasks/task_list.html' in [t.name for t in response.templates]
-        obj = Task.objects.filter(project__user=self.user)
         self.assertEqual(obj.count(), 1)
 
     def test_taks_no_data(self):
         self.client.force_login(self.user2)
         response = self.client.get(self.url)
+        obj = Task.objects.filter(project__user=self.user2).exists()
+
         self.assertEqual(response.status_code, 200)
         assert 'base.html' in [t.name for t in response.templates]
         assert 'tasks/task_list.html' in [t.name for t in response.templates]
         self.assertContains(response, 'Sorry, no tasks yet.')
-        obj = Task.objects.filter(project__user=self.user2).exists()
         self.assertFalse(obj)
+        self.assertQuerysetEqual(response.context['object_list'], [])
 
+    def test_check_amount_of_tasks(self):
+        pr1 = ProjectFactory(user=self.user)
+        TaskFactory.create_batch(5, project=pr1)
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
 
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['object_list']), 5)
 
+    def test_amount_of_tasks_for_user(self):
+        pr1 = ProjectFactory(user=self.user)
+        pr2 = ProjectFactory(user=self.user2)
+        TaskFactory.create_batch(5, project=pr1)
+        TaskFactory.create_batch(2, project=pr2)
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
 
-    # количество тасков для второго юзера - типа пусто
+        self.assertEqual(len(response.context['object_list']), 5)
+
