@@ -1,14 +1,18 @@
 import factory
+from faker import Faker
+
+from tasks.models import Task
 from tests.factories_common import BaseModelFactory
-from tests.factories_users import UserFactory
+from tests.factories_projects import ProjectFactory
 
-from tasks.models import Project
+fake = Faker()
 
 
-class ProjectFactory(BaseModelFactory):
-    user = factory.SubFactory(UserFactory)
-    title = factory.Sequence(lambda n: 'new title for project {}'.format(n))
-    slug = factory.Sequence(lambda n: 'new-title-for-project-{}'.format(n))
+class TaskFactory(BaseModelFactory):
+    title = factory.Sequence(lambda n: 'task {}'.format(n))
+    slug = factory.Sequence(lambda n: 'task-{}'.format(n))
+    description = fake.text()
+    project = factory.SubFactory(ProjectFactory)
 
     class Meta:
-        model = Project
+        model = Task

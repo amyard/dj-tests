@@ -4,9 +4,11 @@ from django.urls import reverse
 from django.utils.translation import activate
 
 from tests.factories_users import UserFactory
-from tests.factories_tasks import ProjectFactory
+from tests.factories_projects import ProjectFactory
 from tasks.models import Project
 from tasks.forms import ProjectCreateForm
+
+
 User = get_user_model()
 
 

@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 
-from .models import Project
+from .models import Project, Task
 from .forms import ProjectCreateForm, ProjectUpdateForm
 
 
@@ -73,3 +73,14 @@ class ProjectDeleteView(LoginRequiredMixin, UserPassesTestMixin,DeleteView):
         if self.request.user == pr.user or self.request.user.is_superuser:
             return True
         return False
+
+
+
+##############################################################################################################
+######           TASKS
+##############################################################################################################
+
+class TaskListView(LoginRequiredMixin, ListView):
+    model = Task
+    def get_queryset(self):
+        return self.model.objects.filter(project__user=self.request.user)
